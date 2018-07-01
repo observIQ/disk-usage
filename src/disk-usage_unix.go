@@ -1,4 +1,4 @@
-// +build linux darwin
+// +build linux darwin freebsd
 
 package main
 import (
@@ -87,6 +87,8 @@ func checkFileSystem(fs string) bool {
     case "ext2":
         return true
     case "ext":
+        return true
+    case "ufs":
         return true
     case "zfs":
         return true
