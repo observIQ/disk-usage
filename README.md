@@ -2,13 +2,25 @@
 Alerts based on disk usage - run with cron or windows tasks
 
 ## Building
-Cross compile for Windows or Linux
+A `Makefile` is provided, and relies on Docker to be available
 ```
-go get github.com/bluemedorapublic/gopsutil
+make
+```
 
-env GOOS=windows GOARCH=amd64 go build -v -o disk-usage-win.exe
-env GOOS=linux GOARCH=amd64 go build -v -o disk-usage.bin
+If you wish to avoid Make and Docker, you can build with
+Go 1.13 on your machine
 ```
+go install github.com/mitchellh/gox
+
+env CGO_ENABLED=0 \
+$GOPATH/bin/gox \
+    -arch=amd64 \
+    -os='!netbsd !openbsd !darwin'  \
+    -output "artifacts/disk-usage-{{.OS}}-{{.Arch}}" \
+    ./...
+```
+
+Both build options will output binaries in `artifacts/`
 
 ## Usage
 Pass `--help`

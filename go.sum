@@ -1,0 +1,16 @@
+github.com/BlueMedoraPublic/gopsutil v2.17.12+incompatible h1:M05AEXksh0kDlFaT86beAYD0A0PQO5G8Hry5l9G8FXw=
+github.com/BlueMedoraPublic/gopsutil v2.17.12+incompatible/go.mod h1:HnedF8cLYWG2y7ROXe+2gMMTsBHwVKmGFB0oqhsiO+s=
+github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d h1:G0m3OIz70MZUWq3EgK3CesDbo8upS2Vm9/P3FtgI+Jk=
+github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
+github.com/bluemedorapublic/gopsutil v2.17.12+incompatible h1:FaxUpgs/JCsEP69mKe10JfqlosFrNsNCgSkViIrAFak=
+github.com/bluemedorapublic/gopsutil v2.17.12+incompatible/go.mod h1:h0+P989idr7LcRNCaTB2y2afBT/uHMfzHBFzJ3qjcuA=
+github.com/bluemedorapublic/gopsutil v2.17.13-bm+incompatible h1:JlnHBlAD/C3PNChEUzNsiHCGxJCS98AASABOEWvHJv4=
+github.com/bluemedorapublic/gopsutil v2.17.13-bm+incompatible/go.mod h1:h0+P989idr7LcRNCaTB2y2afBT/uHMfzHBFzJ3qjcuA=
+github.com/go-ole/go-ole v1.2.4 h1:nNBDSCOigTSiarFpYE9J/KtEA1IOW4CNeqT9TQDqCxI=
+github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
+github.com/shirou/gopsutil v2.19.10+incompatible h1:lA4Pi29JEVIQIgATSeftHSY0rMGI9CLrl2ZvDLiahto=
+github.com/shirou/gopsutil v2.19.10+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
+golang.org/x/sys v0.0.0-20191119060738-e882bf8e40c2 h1:wAW1U21MfVN0sUipAD8952TBjGXMRHFKQugDlQ9RwwE=
+golang.org/x/sys v0.0.0-20191119060738-e882bf8e40c2/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df h1:n7WqCuqOuCbNr617RXOY0AWRXxgwEyPp2z+p0+hgMuE=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df/go.mod h1:LRQQ+SO6ZHR7tOkpBDuZnXENFzX8qRjMDMyPD6BRkCw=
