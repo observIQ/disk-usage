@@ -25,7 +25,7 @@ pipeline {
                 }
                 stage ('Windows'){
                     agent {
-                        label "windows && docker"
+                        label "windows && golang"
                     }
                     stages {
                         stage('Checkout SCM') {
