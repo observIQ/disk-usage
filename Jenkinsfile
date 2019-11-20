@@ -37,7 +37,7 @@ pipeline {
                         }
                         stage('Run windows build') {
                             steps {
-                                sh '''c:\Go\bin\go build'''
+                                sh '''c:\\Go\\bin\\go build'''
                             }
                         }
                     }
