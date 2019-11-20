@@ -33,9 +33,14 @@ pipeline {
                                 checkout scm
                             }
                         }
-                        stage('Run windows build script') {
+                        stage('Run windows unit tests') {
                             steps {
-                                sh '''make'''
+                                sh '''go test ./...'''
+                            }
+                        }
+                        stage('Run windows build') {
+                            steps {
+                                sh '''go build'''
                             }
                         }
                     }
