@@ -2,27 +2,19 @@ package main
 import (
 	"os"
 	"flag"
-	"fmt"
-	"bytes"
-	"net/http"
 
-	"gopkg.in/gomail.v2"
+	log "github.com/golang/glog"
+	"github.com/BlueMedoraPublic/disk-usage/alert/slack"
+	"github.com/BlueMedoraPublic/disk-usage/lockfile"
 )
 
-
-const version string  = "1.0.0"
-
+const version string  = "2.0.0"
 
 type GlobalConfig struct {
 	Threshold int
-	UseSlack  bool
-}
-
-type EmailConfig struct {
-	Recipient string
-	Sender    string
-	Server    string
-	Port	  int
+	Hostname string
+	Slack SlackConfig
+	Dryrun bool
 }
 
 type SlackConfig struct {
@@ -30,141 +22,106 @@ type SlackConfig struct {
 	Channel string
 }
 
-
 var returnVersion bool		   // Flag returns the version and then exits
-var dryrun 		  bool         // When true, no alerts are sent
 var drives        []string     // Global var stores list of drives
 var globalConfig  GlobalConfig
-var emailConfig   EmailConfig
 var slackConfig   SlackConfig
-
 
 func main() {
 	if returnVersion {
-		getVersion()
+		log.Info(version)
 		os.Exit(0)
 	}
 
-	getMountpoints()
-	getUsage()
+	// if we cannot determine the hostname, set the hostname
+	// and print the error. We still want to attempt to alert
+	// TODO: Find other identifieable information such as
+	// an ip address
+	var err error
+	globalConfig.Hostname, err = os.Hostname()
+	if err != nil {
+		log.Error("could not determine hostname", err)
+		globalConfig.Hostname = "unknown"
+	}
+
+	if err := getMountpoints(); err != nil {
+		log.Error("", err)
+		os.Exit(1)
+	}
+
+	if err := getUsage(); err != nil {
+		log.Error("", err)
+		os.Exit(1)
+	}
 }
 
 
 func init() {
 	flag.BoolVar(&returnVersion, "version", false, "Get current version")
 
-	flag.BoolVar(&dryrun, "dryrun", false, "Run without sending alerts")
+	flag.BoolVar(&globalConfig.Dryrun, "dryrun", false, "Run without sending alerts")
 	flag.IntVar(&globalConfig.Threshold, "t", 85, "Pass a threshold as an integer")
 
-	flag.BoolVar(&globalConfig.UseSlack, "s", false, "Enable slack by passing 'true'")
-	flag.StringVar(&slackConfig.Channel, "c", "#some_channel", "Pass a slack channel")
-	flag.StringVar(&slackConfig.Url, "slack-url", "https://hooks.slack.com/services/somehook", "Pass a slack hooks URL")
+	flag.StringVar(&globalConfig.Slack.Channel, "c", "#some_channel", "Pass a slack channel")
+	flag.StringVar(&globalConfig.Slack.Url, "slack-url", "https://hooks.slack.com/services/somehook", "Pass a slack hooks URL")
 
-	flag.StringVar(&emailConfig.Recipient, "r", "email@domain.com", "Pass an email recipient")
-	flag.StringVar(&emailConfig.Server, "smtp-server", "smtp.domain.localnet", "Pass an smtp server hostname")
-	flag.IntVar(&emailConfig.Port, "smtp-port", 25, "Pass an smtp listening port")
+	// glog flags
+	flag.Set("logtostderr", "true")
+	flag.Set("stderrthreshold", "WARNING")
 
 	flag.Parse()
-
-	emailConfig.Sender = "admin@" + getHostname()
 }
 
 
-func alert(message string, lock bool) bool {
-	var result bool
-
-	if dryrun {
-		fmt.Println("Dry run, skipping alert")
-		return true
+func alert(message string, newLock bool) error {
+	if globalConfig.Dryrun {
+		log.Info("Dry run, skipping alert")
+		return nil
 	}
 
-	if lock == true && lockExists(lockpath) {
-		fmt.Println("Lock exists, skipping alert.")
-		return true
+	// if newLock is set to true and the lock file already
+	// exists, skip the alert
+	if newLock == true && lockfile.Exists(lockPath()) {
+		log.Info("Lock exists, skipping alert.")
+		return nil
+	}
+	return slackAlert(message)
+}
+
+func slackAlert(m string) error {
+	alert := slack.Alert{
+		Message: m,
+		Channel: globalConfig.Slack.Channel,
+		URL: globalConfig.Slack.Url,
+	}
+	return alert.Send()
+}
+
+func handleLock(createLock, createAlert bool, message string) error {
+	// If disk usage is healthy, and lock exists, clear it
+	// by removing the lock
+	if createLock == false && lockfile.Exists(lockPath()) {
+		createAlert = true
 	}
 
-	if globalConfig.UseSlack != true {
-		result = alertEmail(message)
-	} else {
-		result = alertSlack(message)
-	}
-
-	// If alert sent, create lock file only if lock == true
-	if result == true  {
-		fmt.Println("Alert sent")
-		if lock == true {
-			createLock(lockpath)
+	if createLock == false {
+		message = message + " disk usage cleared."
+		if err := alert(message, false); err != nil {
+			return err
 		}
-		return true
-
-	} else {
-		fmt.Println("Failed to send alert!")
-		return false
+		return lockfile.RemoveLock(lockPath())
 	}
-}
 
-
-func alertSlack(message string) bool {
-	var json []byte = []byte(
-		`
-		{
-			"channel": "` + slackConfig.Channel + `",
-			"text":"` + message + `"
+	// if the lockfile does not already exist, send an
+	// alert and then create the lockfile
+	// if the alert fails, we skip creating the lockfile
+	// in order to try again next time
+	if lockfile.Exists(lockPath()) == false {
+		if err := alert(message, true); err != nil {
+			return err
 		}
-		`)
-
-	req, err := http.NewRequest("POST", slackConfig.Url, bytes.NewBuffer(json))
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	defer resp.Body.Close()
-
-	// If error, send email instead
-	if err != nil || resp.StatusCode != 200 {
-		fmt.Println(err)
-		fmt.Println("Problem with slack, falling back to email.")
-
-		return alertEmail(message)
-
-	} else if resp.StatusCode == 200 {
-		return true
-
-	} else {
-		return false
-	}
-}
-
-
-func alertEmail(message string) bool {
-	s := getHostname() + " disk usage"
-	d := gomail.NewDialer(emailConfig.Server, emailConfig.Port, "", "")
-	m := gomail.NewMessage()
-
-	m.SetHeader("From", emailConfig.Sender)
-	m.SetHeader("To", emailConfig.Recipient)
-	m.SetHeader("Subject", s)
-	m.SetBody("text/html", message)
-
-	if err := d.DialAndSend(m); err != nil {
-		fmt.Println(err)
-		return false
+		return lockfile.CreateLock(lockPath())
 	}
 
-	return true
-}
-
-
-func getHostname() string {
-  hostname, err := os.Hostname()
-  if err != nil {
-	  fmt.Println("Failed to get hostname. . . Returning something..")
-	  return "Could luck, could not determine my hostname."
-  }
-  return hostname
-}
-
-
-func getVersion() {
-	fmt.Printf(version)
+	return nil
 }
