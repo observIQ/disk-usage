@@ -1,8 +1,5 @@
 pipeline {
 	agent any
-    environment {
-
-    }
     stages {
         stage('Run parallel scripts'){
             parallel{
