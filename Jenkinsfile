@@ -32,12 +32,12 @@ pipeline {
                         }
                         stage('Run windows unit tests') {
                             steps {
-                                sh '''go test ./...'''
+                                sh '''c:\Go\bin\go test ./...'''
                             }
                         }
                         stage('Run windows build') {
                             steps {
-                                sh '''go build'''
+                                sh '''c:\Go\bin\go build'''
                             }
                         }
                     }
