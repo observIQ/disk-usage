@@ -87,8 +87,13 @@ func slackAlert(m string) error {
 		Channel: globalConfig.Slack.Channel,
 		URL: globalConfig.Slack.Url,
 	}
+
+	if err := alert.Send(); err != nil {
+		return err
+	}
+
 	log.Info("slack alert sent: " + m)
-	return alert.Send()
+	return nil
 }
 
 func handleLock(createLock, createAlert bool, message string) error {
