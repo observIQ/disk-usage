@@ -14,8 +14,8 @@ INTERVAL=10
 
 # deploy
 cd /usr/local/bin
-wget https://github.com/BlueMedoraPublic/disk-usage/releases/download/1.0.1/disk-usage.bin
-chmod +x /usr/local/bin/disk-usage.bin
+wget https://github.com/BlueMedoraPublic/disk-usage/releases/download/2.0.0/disk-usage-linux-amd64
+chmod +x /usr/local/bin/disk-usage-linux-amd64
 
 # setup cronjob
-(crontab -l 2>/dev/null; echo "*/${INTERVAL} * * * * /usr/local/bin/disk-usage.bin -t ${THRESHOLD} -s -c ${CHANNEL}" -slack-url ${SLACK_HOOK}) | crontab -
+(crontab -l 2>/dev/null; echo "*/${INTERVAL} * * * * /usr/local/bin/disk-usage-linux-amd64 -t ${THRESHOLD} -c ${CHANNEL}" -slack-url ${SLACK_HOOK}) | crontab -
