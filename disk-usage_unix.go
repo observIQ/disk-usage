@@ -3,29 +3,35 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"syscall"
 
+	log "github.com/golang/glog"
 	"github.com/bluemedorapublic/gopsutil/disk"
 )
 
 const lockpath string = "/tmp/suppress"
 
-func getMountpoints() {
-	devices, _ := disk.Partitions(true)
+func getMountpoints() error {
+	devices, err := disk.Partitions(true)
+	if err != nil {
+		return err
+	}
+
 	for _, device := range devices {
 		if checkFileSystem(device.Fstype) == true {
 			drives = append(drives, device.Mountpoint)
 		}
 	}
+
+	return nil
 }
 
-func getUsage() {
+func getUsage() error {
 	var (
 		createAlert bool   = false
 		createLock  bool   = false
-		message     string = getHostname()
+		message     string = globalConfig.Hostname
 	)
 
 	var stat syscall.Statfs_t
@@ -35,7 +41,7 @@ func getUsage() {
 		syscall.Statfs(path, &stat)
 		err := syscall.Statfs(path, &fs)
 		if err != nil {
-			fmt.Println("Failed to read path:", path)
+			log.Info("Failed to read path:", path)
 
 		} else {
 			all := int(fs.Blocks * uint64(fs.Bsize))
@@ -44,33 +50,18 @@ func getUsage() {
 			percentage := int((float64(used) / float64(all)) * 100)
 
 			if percentage > globalConfig.Threshold {
-				fmt.Println("High disk usage:", path, strconv.Itoa(percentage)+"%")
 				message = message + " high disk usage on drive " + path + " " + strconv.Itoa(percentage) + "% \n"
+				log.Info(message)
 				createAlert = true
 				createLock = true
 
 			} else {
-				fmt.Println("Disk usage healthy:", path)
-
+				log.Info("Disk usage healthy:", path)
 			}
 		}
 	}
 
-	// If disk usage is healthy, and lock exists, clear it
-	if createLock == false && lockExists(lockpath) {
-		createAlert = true
-	}
-
-	if createAlert == true {
-		if createLock == true {
-			alert(message, true)
-		} else {
-			message = message + " disk usage cleared."
-			removeLock(lockpath) /* Remove the lock before alerting */
-			alert(message, false)
-
-		}
-	}
+	return handleLock(createLock, createAlert, message)
 }
 
 func checkFileSystem(fs string) bool {
@@ -92,4 +83,8 @@ func checkFileSystem(fs string) bool {
 	default:
 		return false
 	}
+}
+
+func lockPath() string {
+	return lockpath
 }

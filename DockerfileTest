@@ -1,0 +1,8 @@
+FROM golang:1.13
+
+ARG version
+
+ADD . /disk-usage/
+WORKDIR /disk-usage
+
+RUN go test ./...
