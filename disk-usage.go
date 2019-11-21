@@ -79,12 +79,6 @@ func alert(message string, newLock bool) error {
 		return nil
 	}
 
-	// if newLock is set to true and the lock file already
-	// exists, skip the alert
-	if newLock == true && lockfile.Exists(lockPath()) {
-		log.Info("Lock exists, skipping alert.")
-		return nil
-	}
 	return slackAlert(message)
 }
 
@@ -101,26 +95,24 @@ func handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is healthy, and lock exists, clear it
 	// by removing the lock
 	if createLock == false && lockfile.Exists(lockPath()) {
-		createAlert = true
-	}
-
-	if createLock == false {
-		message = message + " disk usage cleared."
-		if err := alert(message, false); err != nil {
+		if err := alert(message, true); err != nil {
 			return err
 		}
 		return lockfile.RemoveLock(lockPath())
 	}
 
-	// if the lockfile does not already exist, send an
-	// alert and then create the lockfile
-	// if the alert fails, we skip creating the lockfile
-	// in order to try again next time
-	if lockfile.Exists(lockPath()) == false {
-		if err := alert(message, true); err != nil {
+	// If disk usage is not healthy and lockfile does not exist,
+	// fire off an alert
+	if createLock == true && !lockfile.Exists(lockPath()) {
+		if err := alert(message, false); err != nil {
 			return err
 		}
 		return lockfile.CreateLock(lockPath())
+	}
+
+	if createLock == true && lockfile.Exists(lockPath()) {
+		log.Info("Lock exists, skipping alert.")
+		return nil
 	}
 
 	return nil
