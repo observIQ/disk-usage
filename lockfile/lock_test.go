@@ -5,8 +5,6 @@ import (
     "testing"
 )
 
-const path = "/tmp/test_lock"
-
 func TestLock(t *testing.T) {
     if err := CreateLock(path); err != nil {
         t.Errorf(err.Error())
