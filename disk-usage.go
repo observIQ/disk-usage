@@ -87,7 +87,7 @@ func slackAlert(m string) error {
 		Channel: globalConfig.Slack.Channel,
 		URL: globalConfig.Slack.Url,
 	}
-	log.Info("slack alert sent: " + message)
+	log.Info("slack alert sent: " + m)
 	return alert.Send()
 }
 
