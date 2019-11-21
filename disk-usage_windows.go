@@ -51,7 +51,7 @@ func getUsage() error {
             createLock = true
 
         } else {
-            log.Info("Disk usage healthy")
+            log.Info("Disk usage healthy: ", drive)
         }
     }
 
