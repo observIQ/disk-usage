@@ -9,9 +9,11 @@ import (
 // CreateLock takes a filepath and creates an empty
 // file
 func CreateLock(x string) error {
-	if _, err := os.Create(x); err != nil {
+	f, err := os.Create(x)
+    if err != nil {
 		return errors.Wrap(err, "Failed to create lock file")
 	}
+    f.Close()
     return nil
 }
 
