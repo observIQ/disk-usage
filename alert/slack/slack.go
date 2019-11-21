@@ -27,15 +27,14 @@ func (a Alert) Send() error {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
-
     if err != nil {
         return errors.Wrap(err, "failed to send slack alert!")
     }
+    defer resp.Body.Close()
+
 
     if resp.StatusCode != 200 {
         return errors.New("Slack returned status " + strconv.Itoa(resp.StatusCode))
     }
-
     return nil
 }
