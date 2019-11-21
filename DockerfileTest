@@ -6,3 +6,10 @@ ADD . /disk-usage/
 WORKDIR /disk-usage
 
 RUN go test ./...
+
+RUN go build
+
+RUN ./disk-usage
+RUN touch /tmp/suppress
+RUN ./disk-usage
+RUN if [ ! -f /tmp/suppress ]; then echo "lock was removed!"; fi
