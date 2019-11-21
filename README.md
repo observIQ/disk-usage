@@ -25,21 +25,31 @@ Both build options will output binaries in `artifacts/`
 ## Usage
 Pass `--help`
 ```
--c string
-      Pass a slack channel (default "#some_channel")
--dryrun
-      Run without sending alerts
--r string
-      Pass an email recipient (default "email@bdomain.com")
--s	Enable slack by passing 'true'
--smtp-port int
-      Pass an smtp listening port (default 25)
--smtp-server string
-      Pass an smtp server hostname (default "smtp.domain.localnet")
--t int
-      Pass a threshold as an integer (default 85)
--version
-      Get current version
+Usage of ./disk-usage-linux-amd64:
+  -alsologtostderr
+    	log to standard error as well as files
+  -c string
+    	Pass a slack channel (default "#some_channel")
+  -dryrun
+    	Run without sending alerts
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -logtostderr
+    	log to standard error instead of files
+  -slack-url string
+    	Pass a slack hooks URL (default "https://hooks.slack.com/services/somehook")
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr
+  -t int
+    	Pass a threshold as an integer (default 85)
+  -v value
+    	log level for V logs
+  -version
+    	Get current version
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
 
 ```
 
