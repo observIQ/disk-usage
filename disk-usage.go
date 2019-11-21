@@ -78,7 +78,6 @@ func alert(message string, newLock bool) error {
 		log.Info("Dry run, skipping alert")
 		return nil
 	}
-
 	return slackAlert(message)
 }
 
@@ -88,6 +87,7 @@ func slackAlert(m string) error {
 		Channel: globalConfig.Slack.Channel,
 		URL: globalConfig.Slack.Url,
 	}
+	log.Info("slack alert sent: " + message)
 	return alert.Send()
 }
 
@@ -95,7 +95,7 @@ func handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is healthy, and lock exists, clear it
 	// by removing the lock
 	if createLock == false && lockfile.Exists(lockPath()) {
-		if err := alert(message, true); err != nil {
+		if err := alert(message + " disk usage is healthy", true); err != nil {
 			return err
 		}
 		return lockfile.RemoveLock(lockPath())
