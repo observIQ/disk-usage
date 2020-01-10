@@ -57,6 +57,6 @@ Example: Use slack, but fall back to email on slack failure
 ```
 ./disk-usage.bin \
     -t 80 \
-    -s -c "#my-channel" -slack-url https://hooks.slack.com/services/mycookhere \
-    -r "myemail@mydomain.com" -smtp-server smtp.mydomain.com
+    -c "#my-channel" \
+    -slack-url https://hooks.slack.com/services/mycookhere
 ```
