@@ -1,6 +1,6 @@
 // +build windows
 
-package main
+package disk
 import (
     "strconv"
 
@@ -8,13 +8,9 @@ import (
     "github.com/bluemedorapublic/gopsutil/disk"
 )
 
-
-const lockpath string = "C:\\suppress.txt"
-
-
 // Call the Partitions function to get an array all drevices (local disk, remote, usb, cdrom)
 // Only append valid drvies to the drives array (Only local disks)
-func getMountpoints() error {
+func (c *Config) getMountpoints() error {
 	devices, err := disk.Partitions(true)
     if err != nil {
         return err
@@ -22,7 +18,7 @@ func getMountpoints() error {
 
 	for _, device := range devices {
 		if validDrive(int(device.Typeret)) == true {
-			drives = append(drives, string(device.Mountpoint))
+			c.drives = append(c.drives, string(device.Mountpoint))
 		}
 	}
 
@@ -31,20 +27,20 @@ func getMountpoints() error {
 
 
 // Kick off an alert for each drive that has a high consumption
-func getUsage() error {
+func (c Config) getUsage() error {
     var (
         createAlert bool   = false
         createLock  bool   = false
-        message     string = globalConfig.Hostname
+        message     string = c.Hostname
     )
 
-    for _, drive := range drives {
+    for _, drive := range c.drives {
 
 		fs, _ := disk.Usage(drive + "\\")
         log.Info(fs.Path, int(fs.UsedPercent), "%")
 		usedSpace := strconv.Itoa(int(fs.UsedPercent)) + "%"
 
-		if int(fs.UsedPercent) > globalConfig.Threshold {
+		if int(fs.UsedPercent) > c.Threshold {
             message = message + " high disk usage on drive " + drive + " " + usedSpace
             log.Info(message)
             createAlert = true
@@ -55,7 +51,7 @@ func getUsage() error {
         }
     }
 
-    return handleLock(createLock, createAlert, message)
+    return c.handleLock(createLock, createAlert, message)
 }
 
 
@@ -82,8 +78,4 @@ func validDrive(driveType int) bool {
 	} else {
 		return false
 	}
-}
-
-func lockPath() string {
-	return lockpath
 }

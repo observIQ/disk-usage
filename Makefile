@@ -1,4 +1,4 @@
-VERSION := $(shell cat disk-usage.go | grep 'const version' | cut -c 25- | tr -d '"')
+VERSION := $(shell cat cmd/root.go | grep 'const version' | cut -c 25- | tr -d '"')
 
 $(shell mkdir -p artifacts)
 
@@ -6,6 +6,7 @@ build: clean test
 	$(info building disk-usage ${VERSION})
 
 	@docker build \
+		-f docker/Dockerfile \
 	    --no-cache \
 	    --build-arg version=${VERSION} \
 	    -t disk-usage:${VERSION} .
@@ -18,7 +19,7 @@ build: clean test
 
 test:
 	@docker build \
-		-f DockerfileTest \
+		-f docker/DockerfileTest \
 	    --no-cache \
 	    --build-arg version=${VERSION} \
 	    -t disk-usage-test:${VERSION} .
