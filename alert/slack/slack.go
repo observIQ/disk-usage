@@ -1,10 +1,7 @@
 package slack
 
 import (
-    "net/http"
-    "strconv"
-    "bytes"
-    "github.com/pkg/errors"
+    "github.com/slack-go/slack"
 )
 
 type Alert struct {
@@ -14,27 +11,9 @@ type Alert struct {
 }
 
 func (a Alert) Send() error {
-	var json []byte = []byte(
-		`
-		{
-			"channel": "` + a.Channel + `",
-			"text":"` + a.Message + `"
-		}
-		`)
-
-	req, err := http.NewRequest("POST", a.URL, bytes.NewBuffer(json))
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-    if err != nil {
-        return errors.Wrap(err, "failed to send slack alert!")
+    s := slack.WebhookMessage{
+        Channel: a.Channel,
+        Text:    a.Message,
     }
-    defer resp.Body.Close()
-
-
-    if resp.StatusCode != 200 {
-        return errors.New("Slack returned status " + strconv.Itoa(resp.StatusCode))
-    }
-    return nil
+    return slack.PostWebhook(a.URL, &s)
 }

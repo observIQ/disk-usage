@@ -10,6 +10,7 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/pkg/errors v0.8.1
 	github.com/shirou/gopsutil v2.19.10+incompatible // indirect
+	github.com/slack-go/slack v0.8.0
 	golang.org/x/sys v0.0.0-20191119060738-e882bf8e40c2 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )

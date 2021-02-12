@@ -8,7 +8,7 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/lockfile"
 )
 
-const version string  = "2.0.0"
+const version string  = "3.0.0"
 
 type GlobalConfig struct {
 	Threshold int
