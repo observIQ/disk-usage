@@ -3,3 +3,4 @@ deploy.sh
 *.exe
 *.bin
 artifacts/
+disk-usage
