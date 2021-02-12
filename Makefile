@@ -6,6 +6,7 @@ build: clean test
 	$(info building disk-usage ${VERSION})
 
 	@docker build \
+		-f docker/Dockerfile \
 	    --no-cache \
 	    --build-arg version=${VERSION} \
 	    -t disk-usage:${VERSION} .
@@ -18,7 +19,7 @@ build: clean test
 
 test:
 	@docker build \
-		-f DockerfileTest \
+		-f docker/DockerfileTest \
 	    --no-cache \
 	    --build-arg version=${VERSION} \
 	    -t disk-usage-test:${VERSION} .
