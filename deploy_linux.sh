@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# keep this script in the root level of the repo, it may be retrieved
+# programmatically by deployment systems
+
 # web hook url is the first argument
 SLACK_HOOK=${1}
 
