@@ -8,11 +8,13 @@ import (
     "github.com/pkg/errors"
 )
 
+// Slack type will send messages to slack
 type Slack struct {
     Channel string
     HookURL string
 }
 
+// Send will send messages to slack
 func (a Slack) Send(message string) error {
     s := slack.WebhookMessage{
         Channel: a.Channel,
@@ -21,6 +23,7 @@ func (a Slack) Send(message string) error {
     return slack.PostWebhook(a.HookURL, &s)
 }
 
+// Init will configure slack
 func (a Slack) Init() error {
     if a.HookURL == "" {
         return fmt.Errorf("slack webhook url is not set")

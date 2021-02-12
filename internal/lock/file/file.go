@@ -6,26 +6,32 @@ import (
     "github.com/pkg/errors"
 )
 
+// File type manages a file at a given path
 type File struct {
     path string
 }
 
+// New returns a new File type
 func New(p string) File {
     return File{p}
 }
 
+// Lock will lock the file
 func (f File) Lock() error {
     return lock(f.path)
 }
 
+// Unlock will unlock (delete) the file
 func (f File) Unlock() error {
     return unlock(f.path)
 }
 
+// Exists will return true if the file exists
 func (f File) Exists() bool {
     return exists(f.path)
 }
 
+// Path will return the file's path
 func (f File) Path() string {
     return f.path
 }

@@ -7,6 +7,8 @@ import (
     log "github.com/golang/glog"
 )
 
+// Config type represents the configuration for
+// disk-usage checking and alerting
 type Config struct {
 	Threshold int
 	Hostname string
@@ -20,6 +22,7 @@ type Config struct {
     drives []string
 }
 
+// Run will execute disk usage checks and alerts
 func (c *Config) Run() error {
     if err := c.getMountpoints(); err != nil {
         return err

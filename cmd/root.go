@@ -27,6 +27,7 @@ var (
     slackHookURL  string
 )
 
+// Execute is the main function, will run disk-usage
 func Execute() {
     if v {
         fmt.Println("disk-usage version:", version)
