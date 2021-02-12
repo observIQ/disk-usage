@@ -1,4 +1,4 @@
-VERSION := $(shell cat disk-usage.go | grep 'const version' | cut -c 25- | tr -d '"')
+VERSION := $(shell cat cmd/root.go | grep 'const version' | cut -c 25- | tr -d '"')
 
 $(shell mkdir -p artifacts)
 
