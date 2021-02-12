@@ -10,7 +10,6 @@ import (
 type Config struct {
 	Threshold int
 	Hostname string
-	Dryrun bool
 
 	// alert interface
 	Alert alert.Alert
@@ -29,7 +28,7 @@ func (c Config) handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is healthy, and lock exists, clear it
 	// by removing the lock
 	if createLock == false && lockfile.Exists(lockPath()) {
-		if err := c.sendAlert(message + " disk usage is healthy", true); err != nil {
+		if err := c.Alert.Send(message + " disk usage is healthy"); err != nil {
 			return err
 		}
 		return lockfile.RemoveLock(lockPath())
@@ -38,7 +37,7 @@ func (c Config) handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is not healthy and lockfile does not exist,
 	// fire off an alert
 	if createLock == true && !lockfile.Exists(lockPath()) {
-		if err := c.sendAlert(message, false); err != nil {
+		if err := c.Alert.Send(message); err != nil {
 			return err
 		}
 		return lockfile.CreateLock(lockPath())
@@ -49,18 +48,5 @@ func (c Config) handleLock(createLock, createAlert bool, message string) error {
 		return nil
 	}
 
-	return nil
-}
-
-
-func (c Config) sendAlert(message string, newLock bool) error {
-	if c.Dryrun {
-		log.Info("Dry run, skipping alert")
-		return nil
-	}
-	if err := c.Alert.Send(message); err != nil {
-		return err
-	}
-	log.Info("Alert sent: " + message)
 	return nil
 }

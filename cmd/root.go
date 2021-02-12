@@ -81,7 +81,6 @@ func initConfig() (disk.Config, error) {
     return disk.Config{
         Threshold: threshold,
         Hostname: hostname,
-        Dryrun: dryrun,
         Alert: a,
     }, nil
 }
