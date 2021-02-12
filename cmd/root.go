@@ -123,6 +123,10 @@ func initAlert() (alert.Alert, error) {
 }
 
 func initLock() (lock.Lock, error) {
+    if dryrun {
+        return lock.Null(), nil
+    }
+
     // const defined in root_unix.go / root_windows.go
     return lock.File(lockpath)
 }
