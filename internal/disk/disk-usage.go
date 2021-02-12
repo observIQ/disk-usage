@@ -36,7 +36,7 @@ func (c Config) handleLock(createLock, createAlert bool, message string) error {
 
 	// If disk usage is not healthy and lockfile does not exist,
 	// fire off an alert
-	if createLock == true && !lockfile.Exists(lockPath()) {
+	if createLock && !lockfile.Exists(lockPath()) {
 		if err := c.Alert.Send(message); err != nil {
 			return err
 		}
