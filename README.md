@@ -55,7 +55,7 @@ Usage of ./disk-usage-linux-amd64:
 
 ```
 
-Example: Use slack, but fall back to email on slack failure
+Example: Use slack:
 ```
 ./disk-usage.bin \
     -t 80 \
