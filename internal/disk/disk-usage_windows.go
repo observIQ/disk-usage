@@ -1,20 +1,21 @@
 // +build windows
 
 package disk
-import (
-    "strconv"
 
-    log "github.com/golang/glog"
-    "github.com/bluemedorapublic/gopsutil/disk"
+import (
+	"strconv"
+
+	"github.com/bluemedorapublic/gopsutil/disk"
+	log "github.com/golang/glog"
 )
 
 // Call the Partitions function to get an array all drevices (local disk, remote, usb, cdrom)
 // Only append valid drvies to the drives array (Only local disks)
 func (c *Config) getMountpoints() error {
 	devices, err := disk.Partitions(true)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	for _, device := range devices {
 		if validDrive(int(device.Typeret)) == true {
@@ -22,38 +23,36 @@ func (c *Config) getMountpoints() error {
 		}
 	}
 
-    return nil
+	return nil
 }
-
 
 // Kick off an alert for each drive that has a high consumption
 func (c Config) getUsage() error {
-    var (
-        createAlert bool   = false
-        createLock  bool   = false
-        message     string = c.Hostname
-    )
+	var (
+		createAlert bool   = false
+		createLock  bool   = false
+		message     string = c.Hostname
+	)
 
-    for _, drive := range c.drives {
+	for _, drive := range c.drives {
 
 		fs, _ := disk.Usage(drive + "\\")
-        log.Info(fs.Path, int(fs.UsedPercent), "%")
+		log.Info(fs.Path, int(fs.UsedPercent), "%")
 		usedSpace := strconv.Itoa(int(fs.UsedPercent)) + "%"
 
 		if int(fs.UsedPercent) > c.Threshold {
-            message = message + " high disk usage on drive " + drive + " " + usedSpace
-            log.Info(message)
-            createAlert = true
-            createLock = true
+			message = message + " high disk usage on drive " + drive + " " + usedSpace
+			log.Info(message)
+			createAlert = true
+			createLock = true
 
-        } else {
-            log.Info("Disk usage healthy: ", drive)
-        }
-    }
+		} else {
+			log.Info("Disk usage healthy: ", drive)
+		}
+	}
 
-    return c.handleLock(createLock, createAlert, message)
+	return c.handleLock(createLock, createAlert, message)
 }
-
 
 func getDevType(driveType uintptr) string {
 	switch driveType {
@@ -69,7 +68,6 @@ func getDevType(driveType uintptr) string {
 		return "Unknown"
 	}
 }
-
 
 // Local drives are the only drives that should be considered for alerting
 func validDrive(driveType int) bool {

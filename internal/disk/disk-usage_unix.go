@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"syscall"
 
-	log "github.com/golang/glog"
 	"github.com/bluemedorapublic/gopsutil/disk"
+	log "github.com/golang/glog"
 )
 
 func (c *Config) getMountpoints() error {

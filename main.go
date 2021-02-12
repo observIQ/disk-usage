@@ -1,9 +1,9 @@
 package main
 
 import (
-    "github.com/BlueMedoraPublic/disk-usage/cmd"
+	"github.com/BlueMedoraPublic/disk-usage/cmd"
 )
 
 func main() {
-    cmd.Execute()
+	cmd.Execute()
 }

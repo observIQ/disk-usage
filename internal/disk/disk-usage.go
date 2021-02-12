@@ -1,33 +1,33 @@
 package disk
 
 import (
-    "github.com/BlueMedoraPublic/disk-usage/internal/alert"
-    "github.com/BlueMedoraPublic/disk-usage/internal/lock"
+	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
+	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
 
-    log "github.com/golang/glog"
+	log "github.com/golang/glog"
 )
 
 // Config type represents the configuration for
 // disk-usage checking and alerting
 type Config struct {
 	Threshold int
-	Hostname string
+	Hostname  string
 
 	// alert interface
 	Alert alert.Alert
 
-    // lock interface
-    Lock lock.Lock
+	// lock interface
+	Lock lock.Lock
 
-    drives []string
+	drives []string
 }
 
 // Run will execute disk usage checks and alerts
 func (c *Config) Run() error {
-    if err := c.getMountpoints(); err != nil {
-        return err
-    }
-    return c.getUsage()
+	if err := c.getMountpoints(); err != nil {
+		return err
+	}
+	return c.getUsage()
 }
 
 func (c Config) handleLock(createLock, createAlert bool, message string) error {
