@@ -13,8 +13,7 @@ func CreateLock(x string) error {
     if err != nil {
 		return errors.Wrap(err, "Failed to create lock file")
 	}
-    f.Close()
-    return nil
+    return f.Close()
 }
 
 // RemoveLock takes a filepath and removes the file
