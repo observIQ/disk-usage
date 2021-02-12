@@ -2,6 +2,7 @@
 Alerts based on disk usage - run with cron or windows tasks
 
 [![Build Status](https://travis-ci.com/BlueMedoraPublic/disk-usage.svg?branch=master)](https://travis-ci.com/BlueMedoraPublic/disk-usage)
+[![Go Report Card](https://goreportcard.com/badge/github.com/BlueMedoraPublic/disk-usage)](https://goreportcard.com/report/github.com/BlueMedoraPublic/disk-usage)
 
 ## Building
 A `Makefile` is provided, and relies on Docker to be available
