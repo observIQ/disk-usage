@@ -2,7 +2,7 @@ package disk
 
 import (
     "github.com/BlueMedoraPublic/disk-usage/internal/alert"
-    "github.com/BlueMedoraPublic/disk-usage/internal/lockfile"
+    "github.com/BlueMedoraPublic/disk-usage/internal/lock"
 
     log "github.com/golang/glog"
 )
@@ -13,6 +13,9 @@ type Config struct {
 
 	// alert interface
 	Alert alert.Alert
+
+    // lock interface
+    Lock lock.Lock
 
     drives []string
 }
@@ -27,23 +30,23 @@ func (c *Config) Run() error {
 func (c Config) handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is healthy, and lock exists, clear it
 	// by removing the lock
-	if createLock == false && lockfile.Exists(lockPath()) {
+	if !createLock && c.Lock.Exists() {
 		if err := c.Alert.Send(message + " disk usage is healthy"); err != nil {
 			return err
 		}
-		return lockfile.RemoveLock(lockPath())
+		return c.Lock.Unlock()
 	}
 
-	// If disk usage is not healthy and lockfile does not exist,
+	// If disk usage is not healthy and lock does not exist,
 	// fire off an alert
-	if createLock && !lockfile.Exists(lockPath()) {
+	if createLock && !c.Lock.Exists() {
 		if err := c.Alert.Send(message); err != nil {
 			return err
 		}
-		return lockfile.CreateLock(lockPath())
+		return c.Lock.Lock()
 	}
 
-	if createLock == true && lockfile.Exists(lockPath()) {
+	if createLock == true && c.Lock.Exists() {
 		log.Info("Lock exists, skipping alert.")
 		return nil
 	}

@@ -7,6 +7,7 @@ import (
 
     "github.com/BlueMedoraPublic/disk-usage/internal/alert"
     "github.com/BlueMedoraPublic/disk-usage/internal/disk"
+    "github.com/BlueMedoraPublic/disk-usage/internal/lock"
 
     log "github.com/golang/glog"
 )
@@ -78,10 +79,16 @@ func initConfig() (disk.Config, error) {
         return disk.Config{}, err
     }
 
+    l, err := initLock()
+    if err != nil {
+        return disk.Config{}, err
+    }
+
     return disk.Config{
         Threshold: threshold,
         Hostname: hostname,
         Alert: a,
+        Lock: l,
     }, nil
 }
 
@@ -113,6 +120,11 @@ func initAlert() (alert.Alert, error) {
     }
 
     return nil, fmt.Errorf(fmt.Sprintf("failed to set alert type %s", alertType))
+}
+
+func initLock() (lock.Lock, error) {
+    // const defined in root_unix.go / root_windows.go
+    return lock.File(lockpath)
 }
 
 func validateFlags() error {

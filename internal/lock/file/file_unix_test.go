@@ -1,5 +1,5 @@
 // +build linux darwin freebsd
 
-package lockfile
+package file
 
 const path = "/tmp/test_lock"

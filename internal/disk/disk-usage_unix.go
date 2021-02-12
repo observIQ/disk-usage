@@ -10,8 +10,6 @@ import (
 	"github.com/bluemedorapublic/gopsutil/disk"
 )
 
-const lockpath string = "/tmp/suppress"
-
 func (c *Config) getMountpoints() error {
 	devices, err := disk.Partitions(true)
 	if err != nil {
@@ -83,8 +81,4 @@ func checkFileSystem(fs string) bool {
 	default:
 		return false
 	}
-}
-
-func lockPath() string {
-	return lockpath
 }

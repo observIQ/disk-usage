@@ -1,5 +1,5 @@
 // +build windows
 
-package lockfile
+package file
 
 const path = "C:\\test_lock.txt"

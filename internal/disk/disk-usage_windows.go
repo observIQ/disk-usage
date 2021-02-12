@@ -8,10 +8,6 @@ import (
     "github.com/bluemedorapublic/gopsutil/disk"
 )
 
-
-const lockpath string = "C:\\suppress.txt"
-
-
 // Call the Partitions function to get an array all drevices (local disk, remote, usb, cdrom)
 // Only append valid drvies to the drives array (Only local disks)
 func (c *Config) getMountpoints() error {
@@ -82,8 +78,4 @@ func validDrive(driveType int) bool {
 	} else {
 		return false
 	}
-}
-
-func lockPath() string {
-	return lockpath
 }

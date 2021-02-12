@@ -1,4 +1,4 @@
-package lockfile
+package file
 
 import (
     "os"
@@ -6,9 +6,33 @@ import (
     "github.com/pkg/errors"
 )
 
-// CreateLock takes a filepath and creates an empty
+type File struct {
+    path string
+}
+
+func New(p string) File {
+    return File{p}
+}
+
+func (f File) Lock() error {
+    return Lock(f.path)
+}
+
+func (f File) Unlock() error {
+    return Unlock(f.path)
+}
+
+func (f File) Exists() bool {
+    return Exists(f.path)
+}
+
+func (f File) Path() string {
+    return f.path
+}
+
+// Lock takes a filepath and creates an empty
 // file
-func CreateLock(x string) error {
+func Lock(x string) error {
 	f, err := os.Create(x)
     if err != nil {
 		return errors.Wrap(err, "Failed to create lock file")
@@ -16,8 +40,8 @@ func CreateLock(x string) error {
     return f.Close()
 }
 
-// RemoveLock takes a filepath and removes the file
-func RemoveLock(x string) error {
+// Unlock takes a filepath and removes the file
+func Unlock(x string) error {
 	if err := os.Remove(x); err != nil {
         return errors.Wrap(err, "Failed to remove lockfile")
 	}
