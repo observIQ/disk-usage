@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	log "github.com/golang/glog"
-	"github.com/BlueMedoraPublic/disk-usage/alert/slack"
+	"github.com/BlueMedoraPublic/disk-usage/alert"
 	"github.com/BlueMedoraPublic/disk-usage/lockfile"
 )
 
@@ -13,24 +13,31 @@ const version string  = "3.0.0"
 type GlobalConfig struct {
 	Threshold int
 	Hostname string
-	Slack SlackConfig
 	Dryrun bool
-}
 
-type SlackConfig struct {
-	Url     string
-	Channel string
+	// alert interface
+	alert alert.Alert
 }
 
 var returnVersion bool		   // Flag returns the version and then exits
 var drives        []string     // Global var stores list of drives
 var globalConfig  GlobalConfig
-var slackConfig   SlackConfig
+
+// slack
+var (
+	slackHookURL string
+	slackChannel string
+)
 
 func main() {
 	if returnVersion {
 		log.Info(version)
 		os.Exit(0)
+	}
+
+	if err := initAlert(); err != nil {
+		log.Error(err)
+		os.Exit(1)
 	}
 
 	// if we cannot determine the hostname, set the hostname
@@ -62,8 +69,8 @@ func init() {
 	flag.BoolVar(&globalConfig.Dryrun, "dryrun", false, "Run without sending alerts")
 	flag.IntVar(&globalConfig.Threshold, "t", 85, "Pass a threshold as an integer")
 
-	flag.StringVar(&globalConfig.Slack.Channel, "c", "#some_channel", "Pass a slack channel")
-	flag.StringVar(&globalConfig.Slack.Url, "slack-url", "https://hooks.slack.com/services/somehook", "Pass a slack hooks URL")
+	flag.StringVar(&slackChannel, "c", "#some_channel", "Pass a slack channel")
+	flag.StringVar(&slackHookURL, "slack-url", "https://hooks.slack.com/services/somehook", "Pass a slack hooks URL")
 
 	// glog flags
 	flag.Set("logtostderr", "true")
@@ -73,26 +80,15 @@ func init() {
 }
 
 
-func alert(message string, newLock bool) error {
+func sendAlert(message string, newLock bool) error {
 	if globalConfig.Dryrun {
 		log.Info("Dry run, skipping alert")
 		return nil
 	}
-	return slackAlert(message)
-}
-
-func slackAlert(m string) error {
-	alert := slack.Alert{
-		Message: m,
-		Channel: globalConfig.Slack.Channel,
-		URL: globalConfig.Slack.Url,
-	}
-
-	if err := alert.Send(); err != nil {
+	if err := globalConfig.alert.Send(message); err != nil {
 		return err
 	}
-
-	log.Info("slack alert sent: " + m)
+	log.Info("Alert sent: " + message)
 	return nil
 }
 
@@ -100,7 +96,7 @@ func handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is healthy, and lock exists, clear it
 	// by removing the lock
 	if createLock == false && lockfile.Exists(lockPath()) {
-		if err := alert(message + " disk usage is healthy", true); err != nil {
+		if err := sendAlert(message + " disk usage is healthy", true); err != nil {
 			return err
 		}
 		return lockfile.RemoveLock(lockPath())
@@ -109,7 +105,7 @@ func handleLock(createLock, createAlert bool, message string) error {
 	// If disk usage is not healthy and lockfile does not exist,
 	// fire off an alert
 	if createLock == true && !lockfile.Exists(lockPath()) {
-		if err := alert(message, false); err != nil {
+		if err := sendAlert(message, false); err != nil {
 			return err
 		}
 		return lockfile.CreateLock(lockPath())
