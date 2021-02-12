@@ -10,7 +10,7 @@ make
 ```
 
 If you wish to avoid Make and Docker, you can build with
-Go 1.13 on your machine
+Go 1.15 on your machine
 ```
 go install github.com/mitchellh/gox
 
@@ -27,11 +27,13 @@ Both build options will output binaries in `artifacts/`
 ## Usage
 Pass `--help`
 ```
-Usage of ./disk-usage-linux-amd64:
+Usage of ./disk-usage:
+  -alert-type string
+    	Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set (default "slack")
   -alsologtostderr
     	log to standard error as well as files
   -c string
-    	Pass a slack channel (default "#some_channel")
+    	Slack channel
   -dryrun
     	Run without sending alerts
   -log_backtrace_at value
@@ -41,18 +43,17 @@ Usage of ./disk-usage-linux-amd64:
   -logtostderr
     	log to standard error instead of files
   -slack-url string
-    	Pass a slack hooks URL (default "https://hooks.slack.com/services/somehook")
+    	Slack webhook urlL
   -stderrthreshold value
     	logs at or above this threshold go to stderr
   -t int
-    	Pass a threshold as an integer (default 85)
+    	Disk usage percentage that should trigger an alert (default 85)
   -v value
     	log level for V logs
   -version
-    	Get current version
+    	Print version
   -vmodule value
     	comma-separated list of pattern=N settings for file-filtered logging
-
 ```
 
 Example: Use slack:
