@@ -15,15 +15,15 @@ func New(p string) File {
 }
 
 func (f File) Lock() error {
-    return Lock(f.path)
+    return lock(f.path)
 }
 
 func (f File) Unlock() error {
-    return Unlock(f.path)
+    return unlock(f.path)
 }
 
 func (f File) Exists() bool {
-    return Exists(f.path)
+    return exists(f.path)
 }
 
 func (f File) Path() string {
@@ -32,7 +32,7 @@ func (f File) Path() string {
 
 // Lock takes a filepath and creates an empty
 // file
-func Lock(x string) error {
+func lock(x string) error {
 	f, err := os.Create(x)
     if err != nil {
 		return errors.Wrap(err, "Failed to create lock file")
@@ -41,7 +41,7 @@ func Lock(x string) error {
 }
 
 // Unlock takes a filepath and removes the file
-func Unlock(x string) error {
+func unlock(x string) error {
 	if err := os.Remove(x); err != nil {
         return errors.Wrap(err, "Failed to remove lockfile")
 	}
@@ -52,7 +52,7 @@ func Unlock(x string) error {
 
 // Exists returns true if the lock file
 // is present on the filesystem
-func Exists(x string) bool {
+func exists(x string) bool {
     if _, err := os.Stat(x); err != nil {
         return false
     }

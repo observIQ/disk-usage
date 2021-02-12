@@ -6,25 +6,34 @@ import (
 )
 
 func TestLock(t *testing.T) {
-    if err := CreateLock(path); err != nil {
+    f := File{path}
+
+    if err := f.Lock(); err != nil {
         t.Errorf(err.Error())
         return
     }
 
-    if Exists(path) != true {
-        t.Errorf("expected lock file " + path + " to exist, file not found")
+    if f.Exists() != true {
+        t.Errorf("expected lock file " + f.Path() + " to exist, file not found")
     }
 
-    if err := RemoveLock(path); err != nil {
+    if err := f.Unlock(); err != nil {
         t.Errorf(err.Error())
     }
 
-    if Exists(path) != false {
+    if f.Exists() != false {
         t.Errorf("expected lock file to be not found after RemoveLock(), however, it exists")
 
-        if err := os.Remove(path); err != nil {
+        if err := os.Remove(f.Path()); err != nil {
             t.Errorf(err.Error(), "Failed to remove lockfile with os.Remove, something is likely wrong outside of this code.")
             return
         }
+    }
+}
+
+func TestPath(t *testing.T) {
+    f := New(path)
+    if f.Path() != path {
+        t.Errorf("expected f.Path() to return " + path + ", got " + f.Path())
     }
 }
