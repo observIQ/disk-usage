@@ -15,6 +15,6 @@ func (s Stdout) Init() error {
 
 // Send will send messages to standard out
 func (s Stdout) Send(m string) error {
-	fmt.Println("m")
+	fmt.Println(m)
 	return nil
 }
