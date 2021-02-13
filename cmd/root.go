@@ -70,12 +70,17 @@ func init() {
 
 func initConfig() (disk.Config, error) {
 	if hostname == "" {
-		h, err := host.HostnameORAddr()
+		h, err := os.Hostname()
 		if err != nil {
-			log.Error("could not determine hostname or primary ip address", err)
+			log.Error("could not determine hostname", err)
 			hostname = "unknown"
 		}
 		hostname = h
+	}
+
+	ip, err := host.PrimaryAddress()
+	if err != nil {
+		log.Error("could not determine ip address", err)
 	}
 
 	if err := validateFlags(); err != nil {
@@ -98,6 +103,7 @@ func initConfig() (disk.Config, error) {
 		Lock:      l,
 		Host: disk.System{
 			Name: hostname,
+			Address: ip,
 		},
 	}, nil
 }

@@ -3,7 +3,7 @@
 package disk
 
 import (
-	"strconv"
+	"fmt"
 	"syscall"
 
 	"github.com/bluemedorapublic/gopsutil/disk"
@@ -18,56 +18,38 @@ func (c *Config) getDisks() error {
 
 	for _, device := range devices {
 		if checkFileSystem(device.Fstype) == true {
-
 			d := Device{
 				Name: device.Device,
 				MountPoint: device.Mountpoint,
 				Type: device.Fstype,
 			}
 			c.Host.Devices = append(c.Host.Devices, d)
-
-			c.Host.Drives = append(c.Host.Drives, device.Mountpoint)
 		}
 	}
 
 	return nil
 }
 
-func (c Config) getUsage() error {
-	var (
-		createAlert bool   = false
-		createLock  bool   = false
-		message     string = c.Host.Name
-	)
-
+func (c *Config) getUsage() error {
 	var stat syscall.Statfs_t
 	fs := syscall.Statfs_t{}
 
-	for _, path := range c.Host.Drives {
+	for i, device := range c.Host.Devices {
+		path := device.MountPoint
 		syscall.Statfs(path, &stat)
 		err := syscall.Statfs(path, &fs)
 		if err != nil {
-			log.Info("Failed to read path:", path)
-
-		} else {
-			all := int(fs.Blocks * uint64(fs.Bsize))
-			free := int(fs.Bfree * uint64(fs.Bsize))
-			used := int(all - free)
-			percentage := int((float64(used) / float64(all)) * 100)
-
-			if percentage > c.Threshold {
-				message = message + " high disk usage on drive " + path + " " + strconv.Itoa(percentage) + "% \n"
-				log.Info(message)
-				createAlert = true
-				createLock = true
-
-			} else {
-				log.Info("Disk usage healthy:", path)
-			}
+			log.Error(fmt.Sprintf("failed to read path %s: %s", path, err.Error()))
+			continue
 		}
-	}
 
-	return c.handleLock(createLock, createAlert, message)
+		all := int(fs.Blocks * uint64(fs.Bsize))
+		free := int(fs.Bfree * uint64(fs.Bsize))
+		used := int(all - free)
+		percentage := int((float64(used) / float64(all)) * 100)
+		c.Host.Devices[i].UsagePercent = percentage
+	}
+	return nil
 }
 
 func checkFileSystem(fs string) bool {

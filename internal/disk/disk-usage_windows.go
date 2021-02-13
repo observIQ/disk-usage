@@ -3,7 +3,7 @@
 package disk
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/bluemedorapublic/gopsutil/disk"
 	log "github.com/golang/glog"
@@ -19,15 +19,12 @@ func (c *Config) getDisks() error {
 
 	for _, device := range devices {
 		if validDrive(int(device.Typeret)) == true {
-
 			d := Device{
 				Name: device.Device,
 				MountPoint: device.Mountpoint,
 				Type: device.Fstype,
 			}
 			c.Host.Devices = append(c.Host.Devices, d)
-
-			c.Host.Drives = append(c.Host.Drives, string(device.Mountpoint))
 		}
 	}
 
@@ -35,31 +32,19 @@ func (c *Config) getDisks() error {
 }
 
 // Kick off an alert for each drive that has a high consumption
-func (c Config) getUsage() error {
-	var (
-		createAlert bool   = false
-		createLock  bool   = false
-		message     string = c.Host.Name
-	)
+func (c *Config) getUsage() error {
+	for _, device := range c.Host.Devices {
+		drive := device.MountPoint
 
-	for _, drive := range c.Host.Drives {
-
-		fs, _ := disk.Usage(drive + "\\")
-		log.Info(fs.Path, int(fs.UsedPercent), "%")
-		usedSpace := strconv.Itoa(int(fs.UsedPercent)) + "%"
-
-		if int(fs.UsedPercent) > c.Threshold {
-			message = message + " high disk usage on drive " + drive + " " + usedSpace
-			log.Info(message)
-			createAlert = true
-			createLock = true
-
-		} else {
-			log.Info("Disk usage healthy: ", drive)
+		fs, err := disk.Usage(drive + "\\")
+		if err != nil {
+			log.Error(fmt.Sprintf("failed to read path %s: %s", path, err.Error()))
+			continue
 		}
+		percentage := fmt.Sprintf("%d%%", int(fs.UsedPercent))
+		c.Host.Devices[i].UsagePercent = percentage
 	}
-
-	return c.handleLock(createLock, createAlert, message)
+	return nil
 }
 
 func getDevType(driveType uintptr) string {
