@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/bluemedorapublic/gopsutil/disk"
 	log "github.com/golang/glog"
+	"github.com/shirou/gopsutil/disk"
 )
 
 func (c *Config) getDisks() error {

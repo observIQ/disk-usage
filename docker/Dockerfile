@@ -11,7 +11,7 @@ RUN go get github.com/mitchellh/gox
 RUN \
     $GOPATH/bin/gox \
         -arch=amd64 \
-        -os='!freebsd !netbsd !openbsd !darwin'  \
+        -os='!netbsd !openbsd !darwin'  \
         -output "artifacts/disk-usage-{{.OS}}-{{.Arch}}" \
         -ldflags '-w -extldflags "-static"' \
         ./...

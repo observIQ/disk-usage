@@ -5,8 +5,9 @@ package disk
 import (
 	"fmt"
 
-	"github.com/bluemedorapublic/gopsutil/disk"
 	log "github.com/golang/glog"
+	"github.com/shirou/gopsutil/disk"
+	"golang.org/x/sys/windows"
 )
 
 // Call the Partitions function to get an array all drevices (local disk, remote, usb, cdrom)
@@ -18,7 +19,14 @@ func (c *Config) getDisks() error {
 	}
 
 	for _, device := range devices {
-		if validDrive(int(device.Typeret)) == true {
+		path, err := windows.UTF16PtrFromString(device.Mountpoint)
+		if err != nil {
+			return err
+		}
+
+		typeRet := windows.GetDriveType(path)
+
+		if validDrive(int(typeRet)) {
 			d := Device{
 				Name:       device.Device,
 				MountPoint: device.Mountpoint,
