@@ -12,8 +12,8 @@ type message struct {
 
 func (c Config) message(msg, sev string) error {
 	m := message{
-		Host: c.Host,
-		Message: msg,
+		Host:     c.Host,
+		Message:  msg,
 		Severity: sev,
 	}
 

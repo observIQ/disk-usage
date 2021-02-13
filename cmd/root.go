@@ -102,7 +102,7 @@ func initConfig() (disk.Config, error) {
 		Alert:     a,
 		Lock:      l,
 		Host: disk.System{
-			Name: hostname,
+			Name:    hostname,
 			Address: ip,
 		},
 	}, nil

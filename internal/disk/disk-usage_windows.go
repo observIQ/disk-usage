@@ -20,9 +20,9 @@ func (c *Config) getDisks() error {
 	for _, device := range devices {
 		if validDrive(int(device.Typeret)) == true {
 			d := Device{
-				Name: device.Device,
+				Name:       device.Device,
 				MountPoint: device.Mountpoint,
-				Type: device.Fstype,
+				Type:       device.Fstype,
 			}
 			c.Host.Devices = append(c.Host.Devices, d)
 		}

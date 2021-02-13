@@ -3,7 +3,6 @@ package disk
 import (
 	"fmt"
 
-
 	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
 	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
 
@@ -12,6 +11,7 @@ import (
 
 // INFO represents info severity
 const INFO = "info"
+
 // FATAL represents fatal severity
 const FATAL = "fatal"
 
