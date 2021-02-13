@@ -33,16 +33,15 @@ func (c *Config) getDisks() error {
 
 // Kick off an alert for each drive that has a high consumption
 func (c *Config) getUsage() error {
-	for _, device := range c.Host.Devices {
-		drive := device.MountPoint
+	for i, device := range c.Host.Devices {
+		path := device.MountPoint
 
-		fs, err := disk.Usage(drive + "\\")
+		fs, err := disk.Usage(path + "\\")
 		if err != nil {
 			log.Error(fmt.Sprintf("failed to read path %s: %s", path, err.Error()))
 			continue
 		}
-		percentage := fmt.Sprintf("%d%%", int(fs.UsedPercent))
-		c.Host.Devices[i].UsagePercent = percentage
+		c.Host.Devices[i].UsagePercent = int(fs.UsedPercent)
 	}
 	return nil
 }

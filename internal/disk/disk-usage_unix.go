@@ -17,7 +17,7 @@ func (c *Config) getDisks() error {
 	}
 
 	for _, device := range devices {
-		if checkFileSystem(device.Fstype) == true {
+		if validDrive(device.Fstype) == true {
 			d := Device{
 				Name: device.Device,
 				MountPoint: device.Mountpoint,
@@ -52,7 +52,7 @@ func (c *Config) getUsage() error {
 	return nil
 }
 
-func checkFileSystem(fs string) bool {
+func validDrive(fs string) bool {
 	switch fs {
 	case "xfs":
 		return true
