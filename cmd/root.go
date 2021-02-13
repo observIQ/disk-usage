@@ -8,6 +8,7 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
 	"github.com/BlueMedoraPublic/disk-usage/internal/disk"
 	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
+	"github.com/BlueMedoraPublic/disk-usage/internal/pkg/host"
 
 	log "github.com/golang/glog"
 )
@@ -54,6 +55,7 @@ func init() {
 	flag.BoolVar(&dryrun, "dryrun", false, "Run without sending alerts")
 	flag.IntVar(&threshold, "t", 85, "Disk usage percentage that should trigger an alert")
 	flag.StringVar(&alertType, "alert-type", "slack", "Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set")
+	flag.StringVar(&hostname, "hostname", "", "Set the hostname instead of using auto detection")
 
 	// slack
 	flag.StringVar(&slackChannel, "c", "", "Slack channel")
@@ -67,8 +69,13 @@ func init() {
 }
 
 func initConfig() (disk.Config, error) {
-	if err := initHostname(); err != nil {
-		return disk.Config{}, err
+	if hostname == "" {
+		h, err := host.HostnameORAddr()
+		if err != nil {
+			log.Error("could not determine hostname or primary ip address", err)
+			hostname = "unknown"
+		}
+		hostname = h
 	}
 
 	if err := validateFlags(); err != nil {
@@ -91,18 +98,6 @@ func initConfig() (disk.Config, error) {
 		Alert:     a,
 		Lock:      l,
 	}, nil
-}
-
-func initHostname() error {
-	if hostname == "" {
-		h, err := os.Hostname()
-		if err != nil {
-			log.Error("could not determine hostname", err)
-			hostname = "unknown"
-		}
-		hostname = h
-	}
-	return nil
 }
 
 // initAlert sets the alert type. Default to slack if slackHookURL is set, for
