@@ -10,7 +10,7 @@ import (
 	log "github.com/golang/glog"
 )
 
-func (c *Config) getMountpoints() error {
+func (c *Config) getDisks() error {
 	devices, err := disk.Partitions(true)
 	if err != nil {
 		return err
@@ -18,7 +18,15 @@ func (c *Config) getMountpoints() error {
 
 	for _, device := range devices {
 		if checkFileSystem(device.Fstype) == true {
-			c.drives = append(c.drives, device.Mountpoint)
+
+			d := Device{
+				Name: device.Device,
+				MountPoint: device.Mountpoint,
+				Type: device.Fstype,
+			}
+			c.Host.Devices = append(c.Host.Devices, d)
+
+			c.Host.Drives = append(c.Host.Drives, device.Mountpoint)
 		}
 	}
 
@@ -29,13 +37,13 @@ func (c Config) getUsage() error {
 	var (
 		createAlert bool   = false
 		createLock  bool   = false
-		message     string = c.Hostname
+		message     string = c.Host.Name
 	)
 
 	var stat syscall.Statfs_t
 	fs := syscall.Statfs_t{}
 
-	for _, path := range c.drives {
+	for _, path := range c.Host.Drives {
 		syscall.Statfs(path, &stat)
 		err := syscall.Statfs(path, &fs)
 		if err != nil {

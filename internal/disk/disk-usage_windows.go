@@ -11,7 +11,7 @@ import (
 
 // Call the Partitions function to get an array all drevices (local disk, remote, usb, cdrom)
 // Only append valid drvies to the drives array (Only local disks)
-func (c *Config) getMountpoints() error {
+func (c *Config) getDisks() error {
 	devices, err := disk.Partitions(true)
 	if err != nil {
 		return err
@@ -19,7 +19,15 @@ func (c *Config) getMountpoints() error {
 
 	for _, device := range devices {
 		if validDrive(int(device.Typeret)) == true {
-			c.drives = append(c.drives, string(device.Mountpoint))
+
+			d := Device{
+				Name: device.Device,
+				MountPoint: device.Mountpoint,
+				Type: device.Fstype,
+			}
+			c.Host.Devices = append(c.Host.Devices, d)
+
+			c.Host.Drives = append(c.Host.Drives, string(device.Mountpoint))
 		}
 	}
 
@@ -31,10 +39,10 @@ func (c Config) getUsage() error {
 	var (
 		createAlert bool   = false
 		createLock  bool   = false
-		message     string = c.Hostname
+		message     string = c.Host.Name
 	)
 
-	for _, drive := range c.drives {
+	for _, drive := range c.Host.Drives {
 
 		fs, _ := disk.Usage(drive + "\\")
 		log.Info(fs.Path, int(fs.UsedPercent), "%")

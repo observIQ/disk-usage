@@ -94,9 +94,11 @@ func initConfig() (disk.Config, error) {
 
 	return disk.Config{
 		Threshold: threshold,
-		Hostname:  hostname,
 		Alert:     a,
 		Lock:      l,
+		Host: disk.System{
+			Name: hostname,
+		},
 	}, nil
 }
 
