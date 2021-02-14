@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"syscall"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/shirou/gopsutil/disk"
 )
 
@@ -48,6 +48,8 @@ func (c *Config) getUsage() error {
 		used := int(all - free)
 		percentage := int((float64(used) / float64(all)) * 100)
 		c.Host.Devices[i].UsagePercent = percentage
+
+		log.Trace(fmt.Sprintf("disk %s usage %d", device.Name, percentage))
 	}
 	return nil
 }
