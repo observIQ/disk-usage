@@ -2,6 +2,7 @@ language: go
 os:
   - linux
   - windows
+  - freebsd
 arch:
   - amd64
 go:
@@ -9,6 +10,7 @@ go:
 services:
   - docker
 before_script:
+  - docker pull golang:1.15
   - go mod download
 script:
   # All platforms
