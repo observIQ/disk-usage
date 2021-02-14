@@ -11,6 +11,7 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/internal/pkg/host"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/pkg/errors"
 )
 
 const version string = "3.0.0"
@@ -22,6 +23,7 @@ var (
 	threshold int
 	hostname  string
 	alertType string
+	logLevel  string
 
 	// slack
 	slackChannel string
@@ -55,6 +57,8 @@ func init() {
 	flag.IntVar(&threshold, "t", 85, "Disk usage percentage that should trigger an alert")
 	flag.StringVar(&alertType, "alert-type", "slack", "Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set")
 	flag.StringVar(&hostname, "hostname", "", "Set the hostname instead of using auto detection")
+	flag.StringVar(&logLevel, "log-level", "info", "Set log level (error, warning, info, trace)")
+
 	// slack
 	flag.StringVar(&slackChannel, "c", "", "Slack channel")
 	flag.StringVar(&slackHookURL, "slack-url", "", "Slack webhook urlL")
@@ -104,15 +108,15 @@ func initConfig() (disk.Config, error) {
 }
 
 func initLog() {
-	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
-
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
 	log.SetOutput(os.Stdout)
 
-	// Only log the warning severity or above.
-	log.SetLevel(log.TraceLevel)
+	level, err := log.ParseLevel(logLevel)
+	if err != nil {
+		log.Error(errors.Wrap(err, "Invalid log level set, using INFO"))
+		level = log.InfoLevel
+	}
+	log.SetLevel(level)
 }
 
 // initAlert sets the alert type. Default to slack if slackHookURL is set, for
