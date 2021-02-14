@@ -5,7 +5,6 @@ os:
   - freebsd
 arch:
   - amd64
-  - arm64
 go:
 - '1.15'
 before_script:
