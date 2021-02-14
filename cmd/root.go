@@ -10,7 +10,7 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
 	"github.com/BlueMedoraPublic/disk-usage/internal/pkg/host"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 )
 
 const version string = "3.0.0"
@@ -51,24 +51,19 @@ func execute() error {
 
 func init() {
 	flag.BoolVar(&v, "version", false, "Print version")
-
 	flag.BoolVar(&dryrun, "dryrun", false, "Run without sending alerts")
 	flag.IntVar(&threshold, "t", 85, "Disk usage percentage that should trigger an alert")
 	flag.StringVar(&alertType, "alert-type", "slack", "Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set")
 	flag.StringVar(&hostname, "hostname", "", "Set the hostname instead of using auto detection")
-
 	// slack
 	flag.StringVar(&slackChannel, "c", "", "Slack channel")
 	flag.StringVar(&slackHookURL, "slack-url", "", "Slack webhook urlL")
-
-	// glog flags
-	flag.Set("logtostderr", "true")
-	flag.Set("stderrthreshold", "WARNING")
-
 	flag.Parse()
 }
 
 func initConfig() (disk.Config, error) {
+	initLog()
+
 	if hostname == "" {
 		h, err := os.Hostname()
 		if err != nil {
@@ -106,6 +101,18 @@ func initConfig() (disk.Config, error) {
 			Address: ip,
 		},
 	}, nil
+}
+
+func initLog() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+
+	// Only log the warning severity or above.
+	log.SetLevel(log.TraceLevel)
 }
 
 // initAlert sets the alert type. Default to slack if slackHookURL is set, for

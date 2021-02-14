@@ -6,7 +6,7 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
 	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 )
 
 // INFO represents info severity
