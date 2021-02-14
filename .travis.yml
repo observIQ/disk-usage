@@ -1,4 +1,6 @@
 language: go
+os:
+  - linux
 go:
 - '1.15'
 services:
@@ -6,5 +8,6 @@ services:
 before_script:
   - go mod download
 script:
+  - go test ./...
   - make test
   - make
