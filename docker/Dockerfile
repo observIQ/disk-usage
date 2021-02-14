@@ -10,7 +10,7 @@ RUN go get github.com/mitchellh/gox
 # build for Windows, Linux
 RUN \
     $GOPATH/bin/gox \
-        -arch='!mips !mips64 !mips64le !mipsle !s390x !386' \
+        -arch='amd64' \
         -os='!netbsd !openbsd !darwin'  \
         -output "artifacts/disk-usage-{{.OS}}-{{.Arch}}" \
         -ldflags '-w -extldflags "-static"' \
