@@ -10,8 +10,8 @@ import (
 	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
 	"github.com/BlueMedoraPublic/disk-usage/internal/pkg/host"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const version string = "3.0.0"

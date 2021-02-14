@@ -5,8 +5,8 @@ package disk
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/shirou/gopsutil/disk"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
 )
 

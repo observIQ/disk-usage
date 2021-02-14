@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"syscall"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/shirou/gopsutil/disk"
+	log "github.com/sirupsen/logrus"
 )
 
 func (c *Config) getDisks() error {
