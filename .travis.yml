@@ -1,6 +1,8 @@
 language: go
 os:
   - linux
+arch:
+  - amd64
 go:
 - '1.15'
 services:
@@ -9,5 +11,7 @@ before_script:
   - go mod download
 script:
   - go test ./...
-  - make test
-  - make
+  - go build
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then scripts/test/generic_unix.sh; fi
+  # build all supported options with Gox (inside docker)
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make build; fi
