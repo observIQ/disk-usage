@@ -20,4 +20,4 @@ script:
   # Run generic_unix.sh test script
   # Build for all platforms
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then scripts/test/generic_unix.sh; fi
-#  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make build; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make build; fi
