@@ -56,12 +56,12 @@ func init() {
 	flag.BoolVar(&dryrun, "dryrun", false, "Run without sending alerts")
 	flag.IntVar(&threshold, "t", 85, "Disk usage percentage that should trigger an alert")
 	flag.StringVar(&alertType, "alert-type", "slack", "Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set")
-	flag.StringVar(&hostname, "hostname", "", "Set the hostname instead of using auto detection")
+	flag.StringVar(&hostname, "hostname", "", "Set the hostname")
 	flag.StringVar(&logLevel, "log-level", "info", "Set log level (error, warning, info, trace)")
 
 	// slack
 	flag.StringVar(&slackChannel, "c", "", "Slack channel")
-	flag.StringVar(&slackHookURL, "slack-url", "", "Slack webhook urlL")
+	flag.StringVar(&slackHookURL, "slack-url", "", "Slack webhook url")
 	flag.Parse()
 }
 
