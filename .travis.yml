@@ -7,10 +7,10 @@ arch:
   - amd64
 go:
 - '1.15'
-services:
-  - docker
+#services:
+#  - docker
 before_script:
-  - docker pull golang:1.15
+#  - docker pull golang:1.15
   - go mod download
 script:
   # All platforms
@@ -20,4 +20,4 @@ script:
   # Run generic_unix.sh test script
   # Build for all platforms
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then scripts/test/generic_unix.sh; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make build; fi
+#  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make build; fi
