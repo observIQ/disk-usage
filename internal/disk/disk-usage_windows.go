@@ -49,10 +49,11 @@ func (c *Config) getUsage() error {
 			log.Error(fmt.Sprintf("failed to read path %s: %s", path, err.Error()))
 			continue
 		}
-		c.Host.Devices[i].UsagePercent = int(fs.UsedPercent)
-	}
+		percentage := int(fs.UsedPercent)
+		c.Host.Devices[i].UsagePercent = percentage
+		log.Trace(fmt.Sprintf("disk %s usage %d", device.Name, percentage))
 
-	log.Trace(fmt.Sprintf("disk %s usage %d", device.Name, percentage))
+	}
 	return nil
 }
 
