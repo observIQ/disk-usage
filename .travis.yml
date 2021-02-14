@@ -7,10 +7,7 @@ arch:
   - amd64
 go:
 - '1.15'
-#services:
-#  - docker
 before_script:
-#  - docker pull golang:1.15
   - go mod download
 script:
   # All platforms
