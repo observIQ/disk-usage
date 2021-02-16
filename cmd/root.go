@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "3.0.0-alpha.1"
+const version string = "3.0.0"
 
 // flags
 var (

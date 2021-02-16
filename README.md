@@ -9,7 +9,7 @@ Pass `--help`
 ```
 Usage of ./disk-usage:
   -alert-type string
-    	Alert type to use. Defaults to slack for backwards compatability, falls back on Stdout if slack params are not set (default "slack")
+    	Alert type to use. Defaults to slack for backwards compatibility, falls back on Stdout if slack params are not set (default "slack")
   -c string
     	Slack channel
   -dryrun
@@ -32,6 +32,44 @@ Example: Use slack:
     -t 80 \
     -c "#my-channel" \
     -slack-url https://hooks.slack.com/services/mycookhere
+```
+
+Example message:
+```
+{
+    "host": {
+        "name": "test",
+        "address": "10.99.1.10",
+        "devices": [
+            {
+                "name": "/dev/dm-1",
+                "mountpoint": "/",
+                "type": "ext4",
+                "usage_percent": 87
+            },
+            {
+                "name": "/dev/sdc2",
+                "mountpoint": "/boot",
+                "type": "ext4",
+                "usage_percent": 29
+            },
+            {
+                "name": "/dev/dm-3",
+                "mountpoint": "/home",
+                "type": "ext4",
+                "usage_percent": 63
+            },
+            {
+                "name": "/dev/sda1",
+                "mountpoint": "/mnt",
+                "type": "ext4",
+                "usage_percent": 21
+            }
+        ]
+    },
+    "message": "devices have high usage: [/dev/dm-1 /dev/sdc2 /dev/dm-3 /dev/sda1]",
+    "severity": "fatal"
+}
 ```
 
 ## Building
