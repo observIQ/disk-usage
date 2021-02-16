@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "3.0.0"
+const version string = "3.0.1"
 
 // flags
 var (
@@ -122,7 +122,7 @@ func initLog() {
 // initAlert sets the alert type. Default to slack if slackHookURL is set, for
 // backwards compatability. Fall back on stdout if slack is not set.
 func initAlert() (alert.Alert, error) {
-	if dryrun {
+	if alertType == "stdout" || dryrun {
 		return alert.Stdout()
 	}
 
