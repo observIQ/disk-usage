@@ -6,7 +6,7 @@ os:
 arch:
   - amd64
 go:
-- '1.15'
+- '1.16'
 before_script:
   - go mod download
 script:

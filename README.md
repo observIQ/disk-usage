@@ -79,7 +79,7 @@ make
 ```
 
 If you wish to avoid Make and Docker, you can build with
-Go 1.15 on your machine
+Go 1.16 on your machine
 ```
 go install github.com/mitchellh/gox
 
