@@ -2,11 +2,13 @@ package disk
 
 import (
 	"fmt"
+	"encoding/json"
 
 	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
-	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
+	"github.com/BlueMedoraPublic/disk-usage/internal/backend"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/pkg/errors"
 )
 
 // INFO represents info severity
@@ -24,8 +26,8 @@ type Config struct {
 	// alert interface
 	Alert alert.Alert
 
-	// lock interface
-	Lock lock.Lock
+	// State interface
+	State backend.State
 
 	// Host is the system being managed by this config
 	Host System
@@ -44,6 +46,13 @@ type Device struct {
 	MountPoint   string `json:"mountpoint"`
 	Type         string `json:"type"`
 	UsagePercent int    `json:"usage_percent"`
+	Healthy      bool   `json:"healthy"`
+}
+
+// State represents the state written to the state backend
+type State struct {
+	Alerted []string `json:"alerted"`
+	Host  System   `json:"host"`
 }
 
 // Run will execute disk usage checks and alerts
@@ -51,52 +60,108 @@ func (c *Config) Run() error {
 	if err := c.getDisks(); err != nil {
 		return err
 	}
-	return c.checkUsage()
+
+	if err := c.checkUsage(); err != nil {
+		return err
+	}
+
+	return c.handleState()
 }
 
-func (c Config) checkUsage() error {
+func (c *Config) checkUsage() error {
+	log.Trace(fmt.Sprintf("Checking disk usage with threshold %d%%", c.Threshold))
+
 	if err := c.getUsage(); err != nil {
 		return err
 	}
 
-	highUsage := []string{}
-	for _, device := range c.Host.Devices {
+	for i, device := range c.Host.Devices {
 		if device.UsagePercent > c.Threshold {
-			highUsage = append(highUsage, device.Name)
+			c.Host.Devices[i].Healthy = false
+			log.Trace(fmt.Sprintf("Device disk usage is unhealthy %s", device.Name))
+			continue
 		}
+		c.Host.Devices[i].Healthy = true
+		log.Trace(fmt.Sprintf("Device disk usage is healthy %s", device.Name))
 	}
-
-	if len(highUsage) > 0 {
-		msg := fmt.Sprintf("devices have high usage: %s", highUsage)
-		return c.handleLock(true, msg)
-	}
-	return c.handleLock(false, "disk usage healthy")
+	return nil
 }
 
-func (c Config) handleLock(unhealthy bool, message string) error {
-	// If disk usage is healthy, and lock exists, clear it
-	// by removing the lock
-	if !unhealthy && c.Lock.Exists() {
-		m := message + " disk usage is healthy"
-		if err := c.message(m, INFO); err != nil {
-			return err
+func (c *Config) handleState() error {
+	// Continue on failure, assume not alerted. Start fresh.
+	prevState, err := c.ReadState()
+	if err != nil {
+		log.Error(errors.Wrap(err, "Starting fresh with new state"))
+	}
+
+	newState := State{
+		Host: c.Host,
+	}
+
+	for _, current := range c.Host.Devices {
+
+		if current.Healthy {
+			m := fmt.Sprintf("device is healthy: %s", current.Name)
+			log.Info(m)
+			if prevState.alerted(current.Name) {
+				if err := c.message(m, INFO); err != nil {
+					// if alert fails, add device to new state as alerted
+					log.Error(err)
+					newState.Alerted = append(newState.Alerted, current.Name)
+				}
+				log.Info(fmt.Sprintf("Sent 'device is healthy' notification for device %s", current.Name))
+			}
 		}
-		return c.Lock.Unlock()
-	}
 
-	// If disk usage is not healthy and lock does not exist,
-	// fire off an alert
-	if unhealthy && !c.Lock.Exists() {
-		if err := c.message(message, FATAL); err != nil {
-			return err
+		if ! current.Healthy {
+			m := fmt.Sprintf("device is unhealthy: %s", current.Name)
+			log.Warning(m)
+			if ! prevState.alerted(current.Name) {
+				if err := c.message(m, FATAL); err != nil {
+					log.Error(err)
+					// when alert fails, do not add device to state as alerted
+					// in order to force the alert attempt next time disk-usage
+					// is executed
+					continue
+				}
+				log.Info(fmt.Sprintf("Sent 'device is unhealthy' alert for device %s", current.Name))
+			}
+
+			// add the device to the new state after alerting or skipping
+			// due to already alerted
+			newState.Alerted = append(newState.Alerted, current.Name)
 		}
-		return c.Lock.Lock()
 	}
 
-	if unhealthy == true && c.Lock.Exists() {
-		log.Info("Lock exists, skipping alert.")
-		return nil
+ 	if err := c.WriteState(newState); err != nil {
+		return errors.Wrap(err, "Failed to write state")
 	}
-
 	return nil
+}
+
+func (c Config) ReadState() (State, error) {
+	s := State{}
+	b, err := c.State.Read()
+	if err != nil {
+		return s, err
+	}
+	err = json.Unmarshal(b, &s)
+	return s, err
+}
+
+func (c Config) WriteState(s State) error {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+	return c.State.Write(b)
+}
+
+func (s State) alerted(input string) bool {
+	for _, i := range s.Alerted {
+		if input == i {
+			return true
+		}
+	}
+	return false
 }

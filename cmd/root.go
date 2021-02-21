@@ -7,14 +7,14 @@ import (
 
 	"github.com/BlueMedoraPublic/disk-usage/internal/alert"
 	"github.com/BlueMedoraPublic/disk-usage/internal/disk"
-	"github.com/BlueMedoraPublic/disk-usage/internal/lock"
+	"github.com/BlueMedoraPublic/disk-usage/internal/backend"
 	"github.com/BlueMedoraPublic/disk-usage/internal/pkg/host"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "3.0.1"
+const version string = "3.1.0"
 
 // flags
 var (
@@ -91,7 +91,7 @@ func initConfig() (disk.Config, error) {
 		return disk.Config{}, err
 	}
 
-	l, err := initLock()
+	s, err := initState()
 	if err != nil {
 		return disk.Config{}, err
 	}
@@ -99,7 +99,7 @@ func initConfig() (disk.Config, error) {
 	return disk.Config{
 		Threshold: threshold,
 		Alert:     a,
-		Lock:      l,
+		State:      s,
 		Host: disk.System{
 			Name:    hostname,
 			Address: ip,
@@ -137,13 +137,13 @@ func initAlert() (alert.Alert, error) {
 	return nil, fmt.Errorf(fmt.Sprintf("failed to set alert type %s", alertType))
 }
 
-func initLock() (lock.Lock, error) {
+func initState() (backend.State, error) {
 	if dryrun {
-		return lock.Null(), nil
+		return backend.Null(), nil
 	}
 
 	// const defined in root_unix.go / root_windows.go
-	return lock.File(lockpath)
+	return backend.File(statePath)
 }
 
 func validateFlags() error {

@@ -2,4 +2,4 @@
 
 package cmd
 
-const lockpath string = "/tmp/suppress"
+const statePath string = "/tmp/suppress"
