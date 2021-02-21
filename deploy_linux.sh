@@ -17,7 +17,7 @@ INTERVAL=10
 
 # deploy
 cd /usr/local/bin
-wget https://github.com/BlueMedoraPublic/disk-usage/releases/download/2.0.0/disk-usage-linux-amd64
+wget https://github.com/BlueMedoraPublic/disk-usage/releases/download/3.1.0/disk-usage-linux-amd64
 chmod +x /usr/local/bin/disk-usage-linux-amd64
 
 # setup cronjob
