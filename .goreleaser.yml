@@ -1,0 +1,52 @@
+builds:
+- id: disk-usage
+  main: ./
+  env:
+    - CGO_ENABLED=0
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  goos:
+    - linux
+  goarch:
+    - amd64
+    - arm64
+  binary: 'disk-usage'
+
+archives:
+- format: binary
+
+nfpms:
+- id: disk-usage
+  package_name: disk-usage
+  builds:
+    - disk-usage
+  vendor: observIQ, Inc
+  homepage: https://github.com/BlueMedoraPublic/disk-usage
+  maintainer: joe.sirianni@observiq.com
+  formats:
+  - rpm
+  - deb
+  bindir: /usr/local/bin
+
+checksum:
+  name_template: '{{ .ProjectName }}-v{{ .Version }}-SHA256SUMS'
+  algorithm: sha256
+
+release:
+  draft: false
+
+changelog:
+  skip: false
+  use: github
+  sort: asc
+  groups:
+    - title: 'New Features'
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 10
+    - title: 'Dependencies'
+      regexp: '^deps\(deps.*?\):\s.*$'
+      order: 30
+    - title: Other
+      order: 999
