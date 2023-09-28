@@ -1,8 +1,8 @@
 # disk-usage
 Alerts based on disk usage - run with cron or windows tasks
 
-[![Build Status](https://travis-ci.com/BlueMedoraPublic/disk-usage.svg?branch=master)](https://travis-ci.com/BlueMedoraPublic/disk-usage)
-[![Go Report Card](https://goreportcard.com/badge/github.com/BlueMedoraPublic/disk-usage)](https://goreportcard.com/report/github.com/BlueMedoraPublic/disk-usage)
+[![Build Status](https://travis-ci.com/observIQ/disk-usage.svg?branch=master)](https://travis-ci.com/observIQ/disk-usage)
+[![Go Report Card](https://goreportcard.com/badge/github.com/observIQ/disk-usage)](https://goreportcard.com/report/github.com/observIQ/disk-usage)
 
 ## Usage
 Pass `--help`
@@ -91,3 +91,15 @@ $GOPATH/bin/gox \
 ```
 
 Both build options will output binaries in `artifacts/`
+
+# Community
+
+disk-usage is an open source project. If you'd like to contribute, take a look at our [contribution guidelines](/docs/CONTRIBUTING.md). We look forward to building with you.
+
+## Code of Conduct
+
+disk-usage follows the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/master/code-of-conduct.md). Please report violations of the Code of Conduct to any or all [maintainers](/docs/MAINTAINERS.md).
+
+# Other questions?
+
+Send us an [email](mailto:support@observiq.com), or open an issue with your question. We'd love to hear from you!
