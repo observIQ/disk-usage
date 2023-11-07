@@ -23,8 +23,6 @@ jobs:
 
   go-test:
     runs-on: "ubuntu-22.04"
-    needs:
-      - setup-environment
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -40,8 +38,6 @@ jobs:
 
   go-lint:
     runs-on: "ubuntu-22.04"
-    needs:
-      - setup-environment
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -57,8 +53,6 @@ jobs:
 
   build:
     runs-on: "ubuntu-22.04"
-    needs:
-      - setup-environment
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
