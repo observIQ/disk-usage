@@ -1,22 +1,9 @@
 name: CI
 on:
   pull_request:
-  merge_group:
   push:
     branches:
       - main
-
-permissions:
-  contents: read
-  # Make sure package write permission is always enabled, even
-  # for Dependabot pull requests.
-  packages: write
-
-# Prevent multiple runs on the same branch. This is important for webhooks
-# that must be run in order.
-concurrency:
-  group: ${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
 
 jobs:
   shellcheck:
