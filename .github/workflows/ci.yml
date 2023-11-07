@@ -1,0 +1,93 @@
+name: CI
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  # Make sure package write permission is always enabled, even
+  # for Dependabot pull requests.
+  packages: write
+
+# Prevent multiple runs on the same branch. This is important for webhooks
+# that must be run in order.
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  shellcheck:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          version: v0.8.0
+          scandir: "./scripts"
+          severity: info
+
+  go-test:
+    runs-on: "ubuntu-22.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: "1.21.3"
+
+      - run: make test
+
+  go-lint:
+    runs-on: "ubuntu-22.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: "1.21.3"
+
+      - run: make lint
+
+  build:
+    runs-on: "ubuntu-22.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: "1.21.3"
+
+      - name: Test GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: v1.21.2
+          args: release --skip=publish --clean --snapshot
+          distribution: goreleaser
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
